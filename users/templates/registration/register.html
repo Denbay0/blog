@@ -1,0 +1,1 @@
+{% extends 'posts/base.html' %}{% block content %}<section class="form-card"><p class="meta">JOIN</p><h1>Регистрация</h1><form method="post">{% csrf_token %}{{ form.as_p }}<button class="button">Создать аккаунт</button></form></section>{% endblock %}

@@ -1,0 +1,7 @@
+services:
+  web:
+    build: .
+    env_file:
+      - path: .env
+        required: false
+    ports: ["8002:8000"]
