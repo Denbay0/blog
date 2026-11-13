@@ -1,1 +1,1 @@
-{% extends 'posts/base.html' %}{% block content %}<section class="form-card"><p class="meta">MEMBER ACCESS</p><h1>Вход</h1><form method="post">{% csrf_token %}{{ form.as_p }}<button class="button">Войти</button></form></section>{% endblock %}
+{% extends 'blogs/base.html' %}{% load bootstrap4 %}{% block content %}<section class="form-card"><p class="meta">MEMBER ACCESS</p><h1>Вход</h1><form method="post">{% csrf_token %}{% bootstrap_form form %}<button class="button">Войти</button></form></section>{% endblock %}

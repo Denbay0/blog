@@ -1,33 +1,34 @@
 # Blog
 
-Учебный Django-блог: публикации доступны всем, а создавать и изменять их могут авторизованные авторы. Редактирование чужих публикаций запрещено.
+Python 3.12, Django 5.2 LTS, django-bootstrap4 и WhiteNoise. Исходник: https://github.com/Denbay0/blog. Публикации публичны; редактировать может только автор. Каталог приложения `blogs` сохраняет внутреннюю метку миграций `posts` ради переноса старой базы. Миграция 0002 переименовывает модель и поля, сохраняя записи и владельцев. Три демонстрационные записи создайте после `createsuperuser` через `/admin/`.
 
-## Возможности
-
-- публичная лента, новые записи сверху, отдельные страницы;
-- регистрация, вход, POST-выход;
-- создание публикаций и редактирование только автором;
-- admin с поиском, фильтрами и навигацией по датам;
-- тесты публичного доступа и прав владельца.
-
-## Локальный запуск
+## Локально
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\\Scripts\\activate
+python3.12 -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 python manage.py migrate
+python manage.py createsuperuser
 python manage.py runserver
 ```
 
-Проверки: `python manage.py check && python manage.py test`.
+Для каждого проекта создайте собственное окружение. Проверки: `python manage.py check`, `python manage.py test`, `python manage.py makemigrations --check --dry-run`, `python manage.py migrate --plan`.
 
-## Docker
+## Docker и сервер
 
-Скопируйте `.env.example` в `.env` и запустите `docker compose up --build`. Порт: `8002`.
+Скопируйте `.env.example` в `.env`. Установите уникальный случайный `DJANGO_SECRET_KEY`, `DJANGO_ALLOWED_HOSTS` с IP/доменом сервера и свободный `APP_PORT` (локально 8002). `.env` не коммитить.
 
-Hub: https://github.com/Denbay0/practice_hub
+```bash
+docker compose up -d --build
+docker compose logs --tail 100 web
+docker compose exec web python manage.py createsuperuser
+docker compose exec web python manage.py check --deploy
+docker compose restart web
+```
 
-## Screenshots
+При запуске контейнер применяет миграции; Dockerfile собирает статику. SQLite хранится в именованном томе, который сохраняется при пересборке и перезапуске. Перед обновлением экспортируйте том или сделайте резервную копию базы. Для обновления загрузите новые исходники и повторите `docker compose up -d --build`. Не выполняйте `down -v`.
 
-Скриншоты можно добавить в `docs/screenshots/` после запуска.
+Обязательные переменные: `DJANGO_SECRET_KEY`, `DJANGO_ALLOWED_HOSTS`, `APP_PORT`. `DJANGO_DEBUG=0` и путь базы внутри тома задаются Compose. При запуске без Docker база находится в `db.sqlite3`; путь можно задать через `DJANGO_DB_PATH`.
+
+Через HTTP по учебному IP `check --deploy` ожидаемо сообщает предупреждения HSTS/HTTPS и secure cookie. Для боевого HTTPS настройте TLS и соответствующие флаги Django.
