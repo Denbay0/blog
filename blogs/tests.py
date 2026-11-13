@@ -1,6 +1,7 @@
 from datetime import timedelta
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
+from django.core.management import call_command
 from django.urls import reverse
 from .models import BlogPost
 
@@ -75,3 +76,8 @@ class BlogTests(TestCase):
     def test_required_paths(self):
         self.assertEqual(reverse('blogs:create'), '/posts/new/')
         self.assertEqual(reverse('blogs:edit', args=[7]), '/posts/7/edit/')
+
+    def test_demo_seed_is_idempotent(self):
+        call_command('seed_demo_posts', owner=self.author.username, verbosity=0)
+        call_command('seed_demo_posts', owner=self.author.username, verbosity=0)
+        self.assertEqual(BlogPost.objects.filter(owner=self.author).count(), 4)
